@@ -5,6 +5,8 @@ import { Inter } from "next/font/google"
 import Script from "next/script"
 import Plasma from "@/components/plasma"
 import CursorTrail from '@/components/ui/cursor-trail'
+import { Analytics } from "@vercel/analytics/next"
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 const inter = Inter({ subsets: ["latin"], display: "swap" })
 
@@ -67,8 +69,10 @@ export default function RootLayout({
             gtag('config', 'G-HLY1XHHNQ9');
           `}
         </Script>
+        <Analytics/>
       </head>
       <body>
+        <SpeedInsights/>
         <div className="fixed inset-0 z-0 bg-black">
           <Plasma
             color="#5cf1f6"
