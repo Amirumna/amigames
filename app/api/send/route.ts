@@ -4,7 +4,7 @@ import { Resend } from 'resend'
 import { z } from 'zod'
 import { ContactEmail } from '@/hooks/contact-email'
 
-const resend = new Resend(secrets.RESEND_KEY);
+const resend = new Resend("re_gSoqsDBu_D4ExPqpLfSCFUFxYZ6LcviVa");
 
 const sendRouteSchema = z.object({
   fullName: z.string().min(1),
