@@ -1,11 +1,10 @@
+import React from "react"
+import { NextRequest, NextResponse } from 'next/server'
+import { Resend } from 'resend'
+import { z } from 'zod'
+import { ContactEmail } from '@/hooks/contact-email'
 
-import React from "react";
-import { NextRequest, NextResponse } from 'next/server';
-import { Resend } from 'resend';
-import { z } from 'zod';
-import { ContactEmail } from '@/hooks/contact-email';
-
-const resend = new Resend('re_dn6LDkmZ_4rLLLeFHmwREKUJWuBnGnupZ');
+const resend = new Resend(secrets.RESEND_KEY);
 
 const sendRouteSchema = z.object({
   fullName: z.string().min(1),
@@ -14,13 +13,31 @@ const sendRouteSchema = z.object({
 });
 
 export async function POST(req: NextRequest) {
-interface SendRouteRequestBody {
+  interface SendRouteRequestBody {
     fullName: string;
     email: string;
     message: string;
-}
+  }
 
-const { fullName, email, message }: SendRouteRequestBody = await req.json().then((body: unknown) => sendRouteSchema.parse(body));
+  let fullName, email, message;
+  try {
+    const body: unknown = await req.json();
+    const parsed = sendRouteSchema.parse(body);
+    fullName = parsed.fullName;
+    email = parsed.email;
+    message = parsed.message;
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json({
+        message: "Validation error",
+        error: error.issues,
+      }, { status: 400 });
+    }
+    return NextResponse.json({
+      message: "Invalid request",
+      error,
+    }, { status: 400 });
+  }
 
   try {
     const { data, error } = await resend.emails.send({

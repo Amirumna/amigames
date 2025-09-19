@@ -1,9 +1,9 @@
-'use client';
+'use client'
 
-import { useEffect } from 'react';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { ShieldAlert } from 'lucide-react';
+import { useEffect } from 'react'
+import Link from 'next/link'
+import { Button } from '@/components/ui/button'
+import { ShieldAlert } from 'lucide-react'
 
 export default function NotFoundClient() {
   useEffect(() => {

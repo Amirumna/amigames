@@ -1,5 +1,5 @@
-import * as React from 'react';
-import { Html, Body, Container, Heading, Text } from '@react-email/components';
+import * as React from 'react'
+import { Html, Body, Container, Heading, Text } from '@react-email/components'
 
 interface ContactEmailProps {
   fullName: string;

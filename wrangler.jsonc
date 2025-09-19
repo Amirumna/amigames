@@ -11,8 +11,11 @@
     "binding": "ASSETS",
     "directory": ".open-next/assets"
   },
+  "placement": {
+    "mode": "smart"
+  },
   "observability": {
     "enabled": true
   },
-  "upload_source_maps": true
+  "upload_source_maps": true,
 }
