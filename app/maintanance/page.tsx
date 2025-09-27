@@ -1,10 +1,13 @@
 import type { Metadata } from 'next'
 import { SiteHeader } from '@/components/site-header'
-import GearAnimation from '@/components/gear-animation'
+import GearAnimation from '@/components/ui/gear-animation'
+import { copyrightText } from '@/components/appverse-footer'
+
+export const dynamic = "force-static"
 
 export const metadata: Metadata = {
-  title: 'AmiGames | 503 Service Unavailable',
-  description: 'Explore My Journey in Online Games, Showcasing My Skills/Character, Past Projects, and Reviews Games.',
+  title: 'AmiVerse | 503 Service Unavailable',
+  description: 'The server is currently unable to handle the request due to maintenance downtime or capacity problems. Please try again later.',
   generator: 'aminetdevelopment.pages.dev',
 };
 
@@ -16,7 +19,7 @@ export default function MaintanancePage() {
         <GearAnimation />
         <footer>
           <div className="px-4 text-white mt-18 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-10 mx-auto">
-            <p>© {new Date().getFullYear()} - AmiNET Development. All rights reserved.</p>
+            <p>{copyrightText}</p>
           </div>
         </footer>
       </main>

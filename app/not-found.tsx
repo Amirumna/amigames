@@ -1,10 +1,13 @@
 import type { Metadata } from 'next'
 import { SiteHeader } from '@/components/site-header'
 import NotFoundClient from '@/components/notfound-client'
+import { copyrightText } from '@/components/appverse-footer'
+
+export const dynamic = "force-static"
 
 export const metadata: Metadata = {
-  title: 'AmiGames | 404 Not Found',
-  description: 'Explore My Journey in Online Games, Showcasing My Skills/Character, Past Projects, and Reviews Games.',
+  title: 'AmiVerse | 404 Not Found',
+  description: 'The requested resource could not be found but may be available again in the future. Please check the URL or return to the homepage.',
   generator: 'aminetdevelopment.pages.dev',
 };
 
@@ -16,7 +19,7 @@ export default function NotFound() {
       <NotFoundClient />
       <footer>
         <div className="px-4 text-white mt-18 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-10 mx-auto">
-          <p>© {new Date().getFullYear()} - AmiNET Development. All rights reserved.</p>
+          <p>{copyrightText}</p>
         </div>
       </footer>
       </main>

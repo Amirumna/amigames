@@ -4,7 +4,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import Image from "next/image"
-import { Menu, Briefcase, Tag, HelpCircle, FileText, Info } from "lucide-react"
+import { Menu, Briefcase, Tag, FileText, Info } from "lucide-react"
 import { useState } from "react"
 import ContactForm from '@/components/contact-form'
 
@@ -13,6 +13,7 @@ export function SiteHeader() {
   const [openSheet, setOpenSheet] = useState(false)
   const links = [
     { href: "/", label: "Home", icon: Briefcase },
+    { href: "kertas", label: "Kertas", icon: Tag },
     { href: "games", label: "Games", icon: FileText },
     { href: "about", label: "About", icon: Info },
   ]
@@ -111,7 +112,7 @@ export function SiteHeader() {
                                  transition-all"
                       onClick={() => {
                         setOpenSheet(false)
-                        setTimeout(() => setOpenContact(true), 300) // Wait for sidebar to close
+                        setTimeout(() => setOpenContact(true), 300)
                       }}
                     >
                       Chat With Me
