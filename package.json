@@ -1,6 +1,6 @@
 {
-  "name": "amigames",
-  "version": "1.0.2",
+  "name": "amiverse",
+  "version": "2.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
@@ -50,15 +50,16 @@
     "cmdk": "latest",
     "date-fns": "4.1.0",
     "embla-carousel-react": "latest",
-    "geist": "^1.3.1",
-    "input-otp": "latest",
+    "geist": "^1.5.1",
+    "googleapis": "^160.0.0",
     "lucide-react": "^0.454.0",
-    "next": "^15.5.3",
+    "next": "^15.5.4",
     "next-themes": "latest",
-    "ogl": "latest",
+    "ogl": "^1.0.11",
     "react": "^19",
     "react-dom": "^19",
     "react-hook-form": "latest",
+    "react-markdown": "^10.1.0",
     "react-resizable-panels": "latest",
     "recharts": "latest",
     "resend": "^6.1.0",
@@ -66,7 +67,6 @@
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
     "turbopack": "^0.0.1",
-    "vaul": "latest",
     "zod": "3.25.67"
   },
   "devDependencies": {

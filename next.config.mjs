@@ -21,13 +21,13 @@ const nextConfig = {
         permanent: true,
       },
       {
-        source: '/games',
-        destination: '/maintanance',
+        source: '/home',
+        destination: '/',
         permanent: true,
       },
       {
-        source: '/home',
-        destination: '/',
+        source: '/games',
+        destination: '/maintanance',
         permanent: true,
       },
     ]

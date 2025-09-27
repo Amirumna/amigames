@@ -1,39 +1,29 @@
-import type React from "react"
+import React from "react"
 import "@/styles/globals.css"
 import type { Metadata } from "next"
-import { Inter } from "next/font/google"
 import Script from "next/script"
 import Plasma from "@/components/plasma"
 import CursorTrail from '@/components/ui/cursor-trail'
+import PreloadAssets from '@/components/preload'
 import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
-
-const inter = Inter({ subsets: ["latin"], display: "swap" })
+import { Geist } from 'next/font/google'
 
 export const metadata: Metadata = {
-  title: "AmiGames | HOME",
-  description:
-    "Explore My Journey in Online Games, Showcasing My Skills/Character, Past Projects, and Reviews Games.",
+  title: "AmiVerse | HOME",
+  description: "AmiVerse is a Hub of Projects by AmiNET Development.",
   generator: "aminetdevelopment.pages.dev",
 }
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
-  return (
-    <html lang="en" className={inter.className} suppressHydrationWarning>
-      <head>
-        <link
-          rel="preload"
-          href="./fonts/Inter.woff2"
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-          fetchPriority="high"
-        />
+const geist = Geist({
+  subsets: ['latin'],
+})
 
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+
+  return (
+    <html lang="en" className={geist.className} suppressHydrationWarning>
+      <head>
         <Script id="dynamic-favicon" strategy="beforeInteractive">
           {`
             function updateFavicon() {
@@ -51,7 +41,6 @@ export default function RootLayout({
             window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateFavicon);
           `}
         </Script>
-
         <Script id="gtm-script" strategy="lazyOnload">
           {`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
           new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -59,7 +48,6 @@ export default function RootLayout({
           'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
           })(window,document,'script','dataLayer','GTM-K4W5MLFX');`}
         </Script>
-
         <Script src="https://www.googletagmanager.com/gtag/js?id=G-HLY1XHHNQ9" strategy="lazyOnload" />
         <Script id="gtag-init" strategy="lazyOnload">
           {`
@@ -73,26 +61,28 @@ export default function RootLayout({
       </head>
       <body>
         <SpeedInsights/>
-        <div className="fixed inset-0 z-0 bg-black">
-          <Plasma
-            color="#5cf1f6"
-            speed={0.8}
-            direction="forward"
-            scale={1.5}
-            opacity={0.4}
-            mouseInteractive={true}
-          />
-          <CursorTrail 
-            color="#5cf1f6" 
-            trails={20} 
-            size={50} 
-            friction={0.5} 
-            dampening={0.25} 
-            tension={0.98} 
-            lineWidth={1}
-          />
-        </div>
-        <div className="relative z-10">{children}</div>
+  <PreloadAssets>
+          <div className="fixed inset-0 z-0 bg-black">
+            <Plasma
+              color="#5cf1f6"
+              speed={0.8}
+              direction="forward"
+              scale={1.5}
+              opacity={0.4}
+              mouseInteractive={true}
+            />
+            <CursorTrail 
+              color="#5cf1f6" 
+              trails={20} 
+              size={50} 
+              friction={0.5} 
+              dampening={0.25} 
+              tension={0.98} 
+              lineWidth={1}
+            />
+          </div>
+          <div className="relative z-10">{children}</div>
+  </PreloadAssets>
       </body>
     </html>
   )
