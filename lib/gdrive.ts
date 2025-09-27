@@ -1,4 +1,7 @@
 import crypto from 'crypto'
+import { google } from 'googleapis'
+import { readFileSync } from 'fs'
+import path from 'path'
 
 const HMAC_SECRET = process.env.GDRIVE_HMAC_SECRET || 's8vrJHyIWfeqR6uifBGvhGmyHX4fbuzsX5UTriZ8TCyyfhfj1Kc3OPVs02x1CJDe';
 
@@ -38,11 +41,8 @@ export async function searchFilesInDrive(query: string, pageToken?: string, page
 export function generateDownloadLink(fileId: string) {
   return `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`;
 }
-import { google } from 'googleapis';
-import { readFileSync } from 'fs';
-import path from 'path';
 
-const KEYFILEPATH = path.join(process.cwd(), `${process.env.GDRIVE_KEYFILE || 'service-account.json'}`);
+const KEYFILEPATH = path.join(process.cwd(), './service-account.json');
 const SCOPES = ['https://www.googleapis.com/auth/drive.readonly'];
 
 function getAuth() {
