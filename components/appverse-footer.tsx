@@ -10,9 +10,11 @@ interface FooterContent {
   copyright: string
 }
 
+export const copyrightText = `© ${new Date().getFullYear()} — AmiNET Development. All rights reserved.`
+
 const defaultContent: FooterContent = {
   tagline: "Explore My Journey in Online Games, Showcasing My Skills/Character, Past Projects, and Reviews Games.",
-  copyright: `© ${new Date().getFullYear()} — AmiNET Development. All rights reserved.`,
+  copyright: copyrightText,
 }
 
 export function AppverseFooter() {
@@ -34,11 +36,9 @@ export function AppverseFooter() {
 
   return (
     <section className="text-white">
-      {/* Footer */}
       <footer className="border-t border-white/10 pb-20 md:pb-10">
         <div className="container mx-auto px-4 py-10">
           <div className="grid gap-8 md:grid-cols-[1.2fr_1fr_1fr]">
-            {/* Brand */}
             <div className="space-y-3">
               <div className="flex items-center gap-1.5">
                 <Image src="/icons/amigames.svg" alt="AmiGames Logo" width={24} height={24} className="h-6 w-6" />
@@ -46,13 +46,11 @@ export function AppverseFooter() {
               </div>
               <p className="max-w-sm text-sm text-neutral-400">{content.tagline}</p>
             </div>
-
-            {/* Navigation */}
             <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 md:grid-cols-2">
               <div>
                 <h5 className="mb-2 text-xs font-semibold uppercase tracking-widest text-neutral-400">Navigation</h5>
                 <ul className="space-y-2 text-sm text-neutral-300">
-                  {["Home", "Games", "About"].map((item) => (
+                  {["Home", "Kertas", "Games", "About"].map((item) => (
                     <li key={item}>
                       <Link href={`${item.toLowerCase()}`} className="hover:text-lime-300 transition-colors">
                         {item}
@@ -128,7 +126,7 @@ export function AppverseFooter() {
               </div>
             </div>
           </div>
-          <div className="mt-8 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-10">
+          <div className="mt-6 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-10">
             <p>{content.copyright}</p>
           </div>
         </div>

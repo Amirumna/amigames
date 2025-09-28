@@ -4,7 +4,11 @@ import { Resend } from 'resend'
 import { z } from 'zod'
 import { ContactEmail } from '@/hooks/contact-email'
 
-const resend = new Resend("re_gSoqsDBu_D4ExPqpLfSCFUFxYZ6LcviVa");
+const RESEND_API_KEY = process.env.RESEND_API_KEY;
+if (!RESEND_API_KEY) {
+  throw new Error("RESEND_API_KEY environment variable is required");
+}
+const resend = new Resend(RESEND_API_KEY);
 
 const sendRouteSchema = z.object({
   fullName: z.string().min(1),
