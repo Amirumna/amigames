@@ -109,6 +109,7 @@ export async function getFileMetadata(fileId: string) {
     const res = await drive.files.get({
       fileId: safeFileId,
       fields: "id, name, mimeType, size, thumbnailLink",
+      supportsAllDrives: true,
     })
     return res.data
   } catch (error) {
@@ -134,6 +135,7 @@ export async function downloadFile(fileId: string, range?: string) {
       {
         fileId: safeFileId,
         alt: "media",
+        supportsAllDrives: true,
       },
       { responseType: "stream", headers },
     )
