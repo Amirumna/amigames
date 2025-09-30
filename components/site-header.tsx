@@ -13,9 +13,9 @@ export function SiteHeader() {
   const [openSheet, setOpenSheet] = useState(false)
   const links = [
     { href: "/", label: "Home", icon: Briefcase },
-    { href: "kertas", label: "Kertas", icon: Tag },
-    { href: "games", label: "Games", icon: FileText },
-    { href: "about", label: "About", icon: Info },
+    { href: "/kertas", label: "Kertas", icon: Tag },
+    { href: "/games", label: "Games", icon: FileText },
+    { href: "/about", label: "About", icon: Info },
   ]
 
   return (

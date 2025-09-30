@@ -4,12 +4,6 @@ import { Resend } from 'resend'
 import { z } from 'zod'
 import { ContactEmail } from '@/hooks/contact-email'
 
-const RESEND_API_KEY = process.env.RESEND_API_KEY;
-if (!RESEND_API_KEY) {
-  throw new Error("RESEND_API_KEY environment variable is required");
-}
-const resend = new Resend(RESEND_API_KEY);
-
 const sendRouteSchema = z.object({
   fullName: z.string().min(1),
   email: z.string().email(),
@@ -17,6 +11,16 @@ const sendRouteSchema = z.object({
 });
 
 export async function POST(req: NextRequest) {
+  const RESEND_API_KEY = process.env.RESEND_API_KEY;
+  const RESEND_FROM = process.env.RESEND_FROM || 'Contact Form <onboarding@resend.dev>'
+  const RESEND_TO = process.env.CONTACT_TO_EMAIL
+  if (!RESEND_API_KEY) {
+    return NextResponse.json({ message: 'RESEND_API_KEY is missing' }, { status: 500 })
+  }
+  if (!RESEND_TO) {
+    return NextResponse.json({ message: 'CONTACT_TO_EMAIL is missing' }, { status: 500 })
+  }
+  const resend = new Resend(RESEND_API_KEY)
   interface SendRouteRequestBody {
     fullName: string;
     email: string;
@@ -45,8 +49,8 @@ export async function POST(req: NextRequest) {
 
   try {
     const { data, error } = await resend.emails.send({
-      from: `Contact Form <onboarding@resend.dev>`,
-      to: ['amirumanserver@gmail.com'],
+      from: RESEND_FROM,
+      to: [RESEND_TO],
       subject: `New Message from ${fullName}`,
       react: ContactEmail({ fullName, email, message }) as React.ReactElement,
     });
@@ -56,8 +60,8 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ message: "Email sent successfully", data }, { status: 200 });
-  } catch (error) {
-    console.error("Error sending email:", error);
-    return NextResponse.json({ message: "Failed to send email", error }, { status: 500 });
+  } catch (error: any) {
+    console.error("Error sending email:", error?.message || error);
+    return NextResponse.json({ message: "Failed to send email" }, { status: 500 });
   }
 }

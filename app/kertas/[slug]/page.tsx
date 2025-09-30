@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   generator: 'aminetdevelopment.pages.dev',
 };
 
-export default function KertasPage() {
+export default function KertasSlugPage() {
   return (
     <main className="min-h-[100dvh] text-white px-4 sm:px-6 md:px-8">
         <Script id="dynamic-favicon" strategy="beforeInteractive">
