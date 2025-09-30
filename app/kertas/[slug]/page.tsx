@@ -1,4 +1,4 @@
-import React from "react"
+import React, { Suspense } from "react"
 import type { Metadata } from 'next'
 import Script from "next/script"
 import GDriveList from "@/components/gdrive-list"
@@ -40,7 +40,9 @@ export default function KertasSlugPage() {
       </section>
       <section className="flex flex-col items-center w-full">
         <div className="w-full max-w-4xl rounded-lg shadow-lg bg-gray-950/80 p-4 sm:p-6 mb-8">
-          <GDriveList />
+          <Suspense fallback={<div className="text-center py-8 text-gray-300">Loading...</div>}>
+            <GDriveList />
+          </Suspense>
         </div>
       </section>
     <AppverseFooter />
