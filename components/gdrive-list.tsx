@@ -5,12 +5,25 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { X, Folder, MoreVertical, LayoutGrid, List as ListIcon, FileText, File, Image, Video, FileJson, FileCode, Archive, Music } from "lucide-react"
 import ReactMarkdown from "react-markdown"
 
+/**
+ * Fetches the raw text content of a Google Drive file by its file ID.
+ *
+ * @param fileId - The Google Drive file ID to fetch
+ * @returns The file content as text; an empty string if the network response is not OK
+ */
 async function fetchFileContent(fileId: string): Promise<string> {
   const res = await fetch(`/api/gdrive-file?fileId=${fileId}`);
   if (!res.ok) return "";
   return await res.text();
 }
 
+/**
+ * Selects an appropriate file-type icon element based on the file's MIME type and filename extension.
+ *
+ * @param mimeType - The file's MIME type (e.g., `image/png`, `application/pdf`) used as the primary indicator.
+ * @param fileName - The file name used as a fallback to detect type from its extension.
+ * @returns A JSX icon element sized and colorized to represent the detected file type.
+ */
 function getFileIcon(mimeType: string, fileName: string) {
   const lowerName = fileName.toLowerCase();
   
@@ -58,6 +71,13 @@ function getFileIcon(mimeType: string, fileName: string) {
   return <File size={32} className="text-gray-400" />;
 }
 
+/**
+ * Maps a MIME type and filename to a concise file type label.
+ *
+ * @param mimeType - The file's MIME type.
+ * @param fileName - The file's name (used to infer type from extension when MIME is generic or missing).
+ * @returns The file type label such as `IMAGE`, `VIDEO`, `AUDIO`, `PDF`, `TEXT`, `JSON`, `JS`, `TS`, `CSS`, `HTML`, `ZIP`, `RAR`, or the primary MIME type segment uppercased.
+ */
 function getFileTypeLabel(mimeType: string, fileName: string) {
   const lowerName = fileName.toLowerCase();
   
@@ -77,6 +97,16 @@ function getFileTypeLabel(mimeType: string, fileName: string) {
   return mimeType.split('/')[0].toUpperCase();
 }
 
+/**
+ * Renders a file preview modal with controls for downloading and copying a share link.
+ *
+ * Supports inline previews for images, videos, PDFs, plain text, JSON, and audio; shows a "No preview available" message for other types.
+ *
+ * @param open - Whether the modal is visible.
+ * @param onClose - Callback invoked when the modal should be closed.
+ * @param file - File object to preview. Expected to include at least `id`, `name`, and `mimeType`.
+ * @returns The modal element when `open` is true and `file` is provided, or `null` otherwise.
+ */
 function FileModal({ open, onClose, file }: { open: boolean; onClose: () => void; file: any }) {
   const [copyStatus, setCopyStatus] = React.useState<string>("");
   if (!open || !file) return null;
@@ -194,6 +224,13 @@ function FileModal({ open, onClose, file }: { open: boolean; onClose: () => void
     </div>
   );
 }
+/**
+ * Renders a Google Drive–style file browser with folder navigation, search, switchable grid/list views, and file previews.
+ *
+ * Fetches file lists from /api/gdrive-list (optionally scoped by folderId), shows loading and error states, detects a folder README to render as Markdown, and provides per-file previews (images, video, PDF, text, JSON, audio) and direct download/share actions.
+ *
+ * @returns The React element for the file browser UI.
+ */
 export default function GDriveList() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -419,6 +456,15 @@ export default function GDriveList() {
   );
 }
 
+/**
+ * Renders a scrollable preformatted preview of a plain-text file identified by `fileId`.
+ *
+ * Fetches the file content and displays it inside a styled <pre> block; while fetching, shows a loading placeholder that includes `fileName`.
+ *
+ * @param fileId - The identifier of the file to load and preview.
+ * @param fileName - The display name of the file used in the loading placeholder.
+ * @returns A JSX element containing a scrollable, syntax-neutral text preview or a loading message.
+ */
 function TextPreview({ fileId, fileName }: { fileId: string; fileName: string }) {
   const [content, setContent] = React.useState<string>("");
   const [loading, setLoading] = React.useState(true);
@@ -437,6 +483,19 @@ function TextPreview({ fileId, fileName }: { fileId: string; fileName: string })
   );
 }
 
+/**
+ * Render a scrollable, pretty-printed preview of a JSON file.
+ *
+ * Fetches the file content for the given `fileId`, attempts to parse and
+ * pretty-print it as JSON, and displays the result in a scrollable preformatted
+ * block. If parsing fails, an inline error banner "Invalid JSON format" is
+ * shown and the raw file content is displayed instead. While fetching, a
+ * loading message that includes `fileName` is shown.
+ *
+ * @param fileId - The ID of the file to fetch and preview
+ * @param fileName - The file name used in the loading message
+ * @returns The React element that renders the JSON preview UI
+ */
 function JsonPreview({ fileId, fileName }: { fileId: string; fileName: string }) {
   const [content, setContent] = React.useState<string>("");
   const [loading, setLoading] = React.useState(true);
@@ -470,6 +529,15 @@ function JsonPreview({ fileId, fileName }: { fileId: string; fileName: string })
   );
 }
 
+/**
+ * Renders an audio preview UI that streams the file from the server, shows download progress, and plays the downloaded blob.
+ *
+ * Downloads the file from /api/gdrive-file, streams it to build a Blob and object URL, displays progress while downloading, handles playback errors with user-friendly messages, and revokes the object URL on unmount or file change.
+ *
+ * @param fileId - The Google Drive file ID used to fetch the audio content
+ * @param fileName - The display name shown in the preview header
+ * @returns A React element containing the audio download/progress UI and an HTML5 audio player for the downloaded file
+ */
 function AudioPreview({ fileId, fileName }: { fileId: string; fileName: string }) {
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string>("");
@@ -626,6 +694,14 @@ function AudioPreview({ fileId, fileName }: { fileId: string; fileName: string }
   );
 }
 
+/**
+ * Renders Markdown fetched from the given file ID.
+ *
+ * Fetches the file content for `fileId` and renders it as Markdown inside a styled container.
+ *
+ * @param fileId - The ID of the file whose Markdown content should be fetched and displayed.
+ * @returns A React element containing the rendered Markdown.
+ */
 function MarkdownPreview({ fileId }: { fileId: string }) {
   const [content, setContent] = React.useState<string>("");
   React.useEffect(() => {

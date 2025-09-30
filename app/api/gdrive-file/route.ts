@@ -1,6 +1,18 @@
 import { NextResponse } from 'next/server'
 import { downloadFile } from '@/lib/gdrive'
 
+/**
+ * Serves a Google Drive file stream, handling range requests, CORS, content disposition, caching, and ETag.
+ *
+ * Validates the required `fileId` query parameter, optionally treats the `download` query parameter ('1' or 'true') as a request
+ * to force an attachment Content-Disposition, and forwards the file stream returned by the storage layer with appropriate
+ * response headers (Content-Type, Accept-Ranges, Cache-Control, CORS headers, Content-Length/Content-Range, ETag). Ensures
+ * audio MIME types are streamed with byte-range support and removes transfer-encoding when appropriate.
+ *
+ * @returns A Response containing the file stream with appropriate headers (206 for range requests, 200 otherwise).
+ *          On validation failure returns a JSON error response with status 400. On retrieval errors returns a JSON error
+ *          response with status 500.
+ */
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const fileId = searchParams.get('fileId');
@@ -64,6 +76,15 @@ export async function GET(request: Request) {
   }
 }
 
+/**
+ * Provide headers describing a file identified by `fileId` for a HEAD request.
+ *
+ * The response includes content negotiation and CORS headers (e.g. `Content-Type`, `Accept-Ranges`,
+ * `Access-Control-*`, `Vary`). If the file metadata contains `size`, `Content-Length` is set.
+ * If `md5Checksum` is present, an `ETag` is set using the format `W/"md5-{md5Checksum}-{size}-{modifiedTime}"`.
+ *
+ * @returns A Response containing the file headers on success (status 200); a 400 Response if `fileId` is missing; a 404 Response if metadata cannot be retrieved.
+ */
 export async function HEAD(request: Request) {
   const { searchParams } = new URL(request.url);
   const fileId = searchParams.get('fileId');
@@ -88,6 +109,16 @@ export async function HEAD(request: Request) {
   }
 }
 
+/**
+ * Responds to CORS preflight requests with standard Access-Control-* headers.
+ *
+ * @returns A Response with status 200 and headers:
+ * - Access-Control-Allow-Origin: '*'
+ * - Access-Control-Allow-Methods: 'GET, HEAD, OPTIONS'
+ * - Access-Control-Allow-Headers: 'Range, Content-Range, Content-Length, Content-Type'
+ * - Access-Control-Expose-Headers: 'Accept-Ranges, Content-Length, Content-Range, ETag, Content-Type'
+ * - Access-Control-Max-Age: '86400'
+ */
 export async function OPTIONS(request: Request) {
   return new Response(null, {
     status: 200,

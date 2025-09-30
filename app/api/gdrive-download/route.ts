@@ -2,6 +2,16 @@ import { NextResponse } from 'next/server'
 import { downloadFile, getFileMetadata, verifyDownloadToken } from '@/lib/gdrive'
 import { nodeToWebStream } from '@/lib/node-to-web-stream'
 
+/**
+ * Handle authenticated Google Drive file download requests, supporting byte-range requests.
+ *
+ * On success returns a Response streaming the file with headers such as Content-Type, Content-Disposition,
+ * Accept-Ranges, Cache-Control, CORS headers, Content-Length or Content-Range when available, and an ETag when computable.
+ * Responds with 206 when a range is supplied by the client (and a Content-Range is provided by upstream), otherwise 200.
+ * If required query parameters are missing, the token is invalid/expired, or an internal error occurs, returns a JSON error response with status 400, 403, or 500 respectively.
+ *
+ * @returns A Response containing the file stream and download-related headers on success; otherwise a JSON NextResponse with an error message and an appropriate HTTP status (400, 403, or 500).
+ */
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const fileId = searchParams.get('fileId');
@@ -63,6 +73,14 @@ export async function GET(request: Request) {
   }
 }
 
+/**
+ * Produce HTTP headers describing a file (size, type and caching) for a HEAD request without a response body.
+ *
+ * @returns A Response with file metadata headers:
+ * - 200 and headers (Accept-Ranges, Content-Type, Cache-Control, optionally Content-Length and a weak ETag) when the file is found;
+ * - 400 when the `fileId` query parameter is missing;
+ * - 404 when metadata cannot be retrieved.
+ */
 export async function HEAD(request: Request) {
   const { searchParams } = new URL(request.url);
   const fileId = searchParams.get('fileId');

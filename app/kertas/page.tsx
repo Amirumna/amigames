@@ -11,6 +11,11 @@ export const metadata: Metadata = {
   generator: 'aminetdevelopment.pages.dev',
 };
 
+/**
+ * Render the Kertas directory index page with site header, directory listing, and footer.
+ *
+ * @returns The React element for the Kertas page containing the site header, title and description section, a Google Drive directory list container, and the footer.
+ */
 export default function KertasPage() {
   return (
     <main className="min-h-[100dvh] text-white px-4 sm:px-6 md:px-8">

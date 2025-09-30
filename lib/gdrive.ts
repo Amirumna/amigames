@@ -30,17 +30,40 @@ function getAuth() {
   })
 }
 
+/**
+ * Creates an authenticated Google Drive v3 client using service account credentials from the environment.
+ *
+ * @returns An authenticated Drive v3 client instance configured with the module's credentials and scopes
+ */
 function getDriveClient() {
   const auth = getAuth()
   return google.drive({ version: "v3", auth })
 }
 
+/**
+ * Create an HMAC-SHA256 download token for a file and expiry, optionally bound to a client IP.
+ *
+ * @param fileId - The Google Drive file ID to include in the token payload.
+ * @param expiry - Expiry value included in the token payload (timestamp).
+ * @param userIp - Optional client IP address to bind the token to.
+ * @returns A hex-encoded HMAC-SHA256 digest of the token payload.
+ * @throws If the GDRIVE_HMAC_SECRET environment variable is not set.
+ */
 export function generateDownloadToken(fileId: string, expiry: number, userIp?: string): string {
   if (!HMAC_SECRET) throw new Error("GDRIVE_HMAC_SECRET environment variable is required")
   const data = userIp ? `${fileId}|${expiry}|${userIp}` : `${fileId}|${expiry}`
   return nodeCrypto.createHmac('sha256', HMAC_SECRET).update(data).digest('hex')
 }
 
+/**
+ * Validate a download HMAC token for a file and optional client IP against an expiry timestamp.
+ *
+ * @param fileId - The Drive file ID the token was generated for.
+ * @param expiry - Expiration time as milliseconds since the Unix epoch.
+ * @param token - The HMAC-SHA256 token to verify.
+ * @param userIp - Optional client IP that was included when the token was generated.
+ * @returns `true` if the provided token matches the expected HMAC and the current time is before `expiry`, `false` otherwise (also `false` if the HMAC secret is not configured).
+ */
 export function verifyDownloadToken(fileId: string, expiry: number, token: string, userIp?: string): boolean {
   if (!HMAC_SECRET) {
     return false
@@ -49,6 +72,15 @@ export function verifyDownloadToken(fileId: string, expiry: number, token: strin
   return expected === token && Date.now() < expiry
 }
 
+/**
+ * Searches Drive for files whose name contains the provided query string.
+ *
+ * @param query - Substring to match against file names
+ * @param pageToken - Token identifying the page of results to return
+ * @param pageSize - Maximum number of results to return
+ * @returns An object with `files` (list of matching files) and `nextPageToken` when more results exist
+ * @throws Error if `query` is missing or invalid, or if the Drive request fails
+ */
 export async function searchFilesInDrive(query: string, pageToken?: string, pageSize = 100): Promise<DriveListResponse> {
   try {
     if (typeof query !== "string" || query.length < 1) {
@@ -85,10 +117,27 @@ export async function searchFilesInDrive(query: string, pageToken?: string, page
   }
 }
 
+/**
+ * Constructs a direct download URL for a Google Drive file.
+ *
+ * @param fileId - The Drive file ID
+ * @returns A URL that, when requested, returns the file's media content
+ */
 export function generateDownloadLink(fileId: string) {
   return `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`
 }
 
+/**
+ * Lists visible (non-trashed) files directly inside a Google Drive folder.
+ *
+ * Returns file entries (id, name, mimeType, optional size/thumbnail/icon/modifiedTime/driveId) and a next page token when available.
+ *
+ * @param folderId - The Google Drive folder ID to list files from.
+ * @param pageToken - Optional token to continue a previous paginated listing.
+ * @param pageSize - Maximum number of files to return in this page (default 100).
+ * @returns An object containing `files` (array of DriveFile) and `nextPageToken` when more results exist.
+ * @throws Error if `folderId` is missing or invalid, or if the Drive API call fails.
+ */
 export async function listFilesInFolder(folderId: string, pageToken?: string, pageSize = 100): Promise<DriveListResponse> {
   try {
     if (typeof folderId !== "string" || folderId.length < 5) {
@@ -125,6 +174,13 @@ export async function listFilesInFolder(folderId: string, pageToken?: string, pa
   }
 }
 
+/**
+ * Retrieve metadata for a Google Drive file.
+ *
+ * @param fileId - The Google Drive file ID to fetch metadata for
+ * @returns The file metadata object containing `id`, `name`, `mimeType`, `size`, `thumbnailLink`, `md5Checksum`, and `modifiedTime`
+ * @throws Error if `fileId` is invalid or the Drive API request fails; the error message contains the underlying failure reason
+ */
 export async function getFileMetadata(fileId: string) {
   try {
     if (typeof fileId !== "string" || fileId.length < 5) {

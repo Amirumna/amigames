@@ -3,6 +3,17 @@ import { listFilesInFolder } from '@/lib/gdrive'
 
 const ROOT_FOLDER_ID = process.env.ROOT_FOLDER_ID
 
+/**
+ * Handle GET requests to list files in a Google Drive folder based on query parameters.
+ *
+ * Accepts query parameters:
+ * - `folderId`: ID of the folder to list (falls back to the configured ROOT_FOLDER_ID if absent).
+ * - `pageToken`: pagination token to continue a previous listing.
+ * - `pageSize`: number of items to return (clamped to 1–200, defaults to 100).
+ *
+ * @param request - Incoming request whose URL search params determine the listing behavior.
+ * @returns A JSON response containing `{ files, nextPageToken }` on success, or `{ error }` with an appropriate HTTP status on failure.
+ */
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const folderParam = searchParams.get('folderId');

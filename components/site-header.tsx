@@ -8,6 +8,15 @@ import { Menu, Briefcase, Tag, FileText, Info } from "lucide-react"
 import { useState } from "react"
 import ContactForm from '@/components/contact-form'
 
+/**
+ * Render the site's header with brand, responsive navigation, and contact controls.
+ *
+ * The header includes a logo and title, a desktop navigation and chat button, and a mobile slide-out sheet
+ * that contains the same navigation and a chat action. The contact form is rendered and its visibility
+ * is managed internally by the component.
+ *
+ * @returns The header element containing brand, navigation (desktop and mobile sheet), and the controlled contact form.
+ */
 export function SiteHeader() {
   const [openContact, setOpenContact] = useState(false)
   const [openSheet, setOpenSheet] = useState(false)

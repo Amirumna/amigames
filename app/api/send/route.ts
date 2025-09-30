@@ -10,6 +10,21 @@ const sendRouteSchema = z.object({
   message: z.string().min(2),
 });
 
+/**
+ * Handle POST requests to validate contact form input and send an email using Resend.
+ *
+ * Expects the request body to be JSON with `fullName`, `email`, and `message`. Validates:
+ * - `fullName` is at least 1 character,
+ * - `email` is a valid email address,
+ * - `message` is at least 2 characters.
+ *
+ * @param req - The incoming NextRequest containing the JSON payload described above.
+ * @returns A NextResponse containing JSON:
+ * - On success: `{ message: "Email sent successfully", data }`.
+ * - On validation failure: `{ message: "Validation error", error }` with Zod issues.
+ * - If required environment variables are missing: `{ message: "RESEND_API_KEY is missing" }` or `{ message: "CONTACT_TO_EMAIL is missing" }`.
+ * - On send failure: `{ message: "Email sending failed", error }` or `{ message: "Failed to send email" }` for unexpected errors.
+ */
 export async function POST(req: NextRequest) {
   const RESEND_API_KEY = process.env.RESEND_API_KEY;
   const RESEND_FROM = process.env.RESEND_FROM || 'Contact Form <onboarding@resend.dev>'

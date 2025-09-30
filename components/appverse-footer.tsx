@@ -17,6 +17,14 @@ const defaultContent: FooterContent = {
   copyright: copyrightText,
 }
 
+/**
+ * Renders the site footer for AmiGames.
+ *
+ * On mount, hydrates footer content from localStorage key "amigames-content" and replaces the default content
+ * when a parsed object contains a `footer` property; JSON parse errors are logged to the console.
+ *
+ * @returns The rendered footer element for the AmiGames site.
+ */
 export function AppverseFooter() {
   const [content, setContent] = useState<FooterContent>(defaultContent)
 

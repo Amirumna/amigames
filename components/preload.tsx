@@ -29,6 +29,14 @@ const imagesToPreload = [
 
 const videosToPreload = ["/videos/miyabi.mp4"]
 
+/**
+ * Preloads a fixed set of images and videos and displays a fullscreen animated loading overlay until every asset has either loaded or errored.
+ *
+ * The component tracks a percent progress value updated as each asset reports success or failure; when all assets have reported, the overlay is removed after a 500ms delay. Images are loaded via Image objects (crossOrigin set to "anonymous") and videos are loaded by creating <video> elements that settle on `loadeddata` or `error`.
+ *
+ * @param children - React nodes to render underneath the preload overlay; rendered immediately but covered while loading is active.
+ * @returns A React element that shows the animated preload overlay while assets are being fetched and the supplied children content.
+ */
 export default function PreloadAssets({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = React.useState(true)
   const [progress, setProgress] = React.useState(0)
