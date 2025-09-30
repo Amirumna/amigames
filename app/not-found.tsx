@@ -3,8 +3,6 @@ import { SiteHeader } from '@/components/site-header'
 import NotFoundClient from '@/components/notfound-client'
 import { copyrightText } from '@/components/appverse-footer'
 
-export const dynamic = "force-static"
-
 export const metadata: Metadata = {
   title: 'AmiVerse | 404 Not Found',
   description: 'The requested resource could not be found but may be available again in the future. Please check the URL or return to the homepage.',

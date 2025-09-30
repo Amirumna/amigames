@@ -3,8 +3,6 @@ import { SiteHeader } from '@/components/site-header'
 import GearAnimation from '@/components/ui/gear-animation'
 import { copyrightText } from '@/components/appverse-footer'
 
-export const dynamic = "force-static"
-
 export const metadata: Metadata = {
   title: 'AmiVerse | 503 Service Unavailable',
   description: 'The server is currently unable to handle the request due to maintenance downtime or capacity problems. Please try again later.',

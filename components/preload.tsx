@@ -54,9 +54,12 @@ export default function PreloadAssets({ children }: { children: React.ReactNode 
 
     videosToPreload.forEach((src) => {
       const video = document.createElement("video")
-      video.src = src
       video.preload = "auto"
-      video.oncanplaythrough = video.onerror = updateProgress
+      const settle = () => updateProgress()
+      video.addEventListener("loadeddata", settle, { once: true })
+      video.addEventListener("error", settle, { once: true })
+      video.src = src
+      video.load()
     })
   }, [])
 

@@ -4,10 +4,10 @@ import type { Metadata } from "next"
 import Script from "next/script"
 import Plasma from "@/components/plasma"
 import CursorTrail from '@/components/ui/cursor-trail'
-import PreloadAssets from '@/components/preload'
+import PreloadAssets from "@/components/preload"
 import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
-import { Geist } from 'next/font/google'
+import { Geist } from "next/font/google"
 
 export const metadata: Metadata = {
   title: "AmiVerse | HOME",

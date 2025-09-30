@@ -30,16 +30,20 @@ export async function GET(request: Request) {
       'Accept-Ranges': 'bytes',
       'Cache-Control': 'public, max-age=3600',
       'Access-Control-Allow-Origin': '*',
+      'Access-Control-Expose-Headers': 'Accept-Ranges, Content-Length, Content-Range, ETag',
+      'Vary': 'Origin, Range',
     };
     if (gdriveHeaders['content-range']) {
       responseHeaders['Content-Range'] = gdriveHeaders['content-range'];
     }
     if (gdriveHeaders['content-length']) {
       responseHeaders['Content-Length'] = gdriveHeaders['content-length'];
+    } else if (!gdriveHeaders['content-range'] && metadata.size) {
+      responseHeaders['Content-Length'] = String(metadata.size);
     }
-    if (gdriveHeaders['etag']) {
-      responseHeaders['ETag'] = gdriveHeaders['etag'];
-    }
+    responseHeaders['ETag'] = (gdriveHeaders['etag'] as string) ||
+      (metadata.md5Checksum ? `W/"md5-${metadata.md5Checksum}-${metadata.size}-${metadata.modifiedTime}"` : undefined) || '';
+    if (!responseHeaders['ETag']) delete responseHeaders['ETag'];
     console.log('[gdrive-download] Response headers:', responseHeaders);
     return new Response(webStream, {
       status: gdriveHeaders['content-range'] ? 206 : 200,
@@ -56,5 +60,27 @@ export async function GET(request: Request) {
       error: message,
     });
     return NextResponse.json({ error: message }, { status: 500 });
+  }
+}
+
+export async function HEAD(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const fileId = searchParams.get('fileId');
+  if (!fileId) return new Response(null, { status: 400 });
+  try {
+    const metadata = await getFileMetadata(fileId);
+    const headers: Record<string, string> = {
+      'Accept-Ranges': 'bytes',
+      'Cache-Control': 'public, max-age=3600',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Expose-Headers': 'Accept-Ranges, Content-Length, Content-Range, ETag',
+      'Content-Type': metadata.mimeType || 'application/octet-stream',
+      'Vary': 'Origin, Range',
+    };
+    if (metadata.size) headers['Content-Length'] = String(metadata.size);
+    if (metadata.md5Checksum) headers['ETag'] = `W/"md5-${metadata.md5Checksum}-${metadata.size}-${metadata.modifiedTime}"`;
+    return new Response(null, { status: 200, headers });
+  } catch {
+    return new Response(null, { status: 404 });
   }
 }

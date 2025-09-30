@@ -50,13 +50,16 @@ export function AppverseFooter() {
               <div>
                 <h5 className="mb-2 text-xs font-semibold uppercase tracking-widest text-neutral-400">Navigation</h5>
                 <ul className="space-y-2 text-sm text-neutral-300">
-                  {["Home", "Kertas", "Games", "About"].map((item) => (
+                {["Home", "Kertas", "Games", "About"].map((item) => {
+                  const path = item === "Home" ? "/" : `/${item.toLowerCase()}`
+                  return (
                     <li key={item}>
-                      <Link href={`${item.toLowerCase()}`} className="hover:text-lime-300 transition-colors">
+                      <Link href={path} className="hover:text-lime-300 transition-colors">
                         {item}
                       </Link>
                     </li>
-                  ))}
+                   )
+                })}
                 </ul>
               </div>
               <div>
