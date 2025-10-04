@@ -2,11 +2,12 @@ import type { Metadata } from 'next'
 import { SiteHeader } from '@/components/site-header'
 import GearAnimation from '@/components/ui/gear-animation'
 import { copyrightText } from '@/components/appverse-footer'
+import { siteConfig } from '@/lib/config'
 
 export const metadata: Metadata = {
-  title: 'AmiVerse | 503 Service Unavailable',
-  description: 'The server is currently unable to handle the request due to maintenance downtime or capacity problems. Please try again later.',
-  generator: 'aminetdevelopment.pages.dev',
+  title: siteConfig.pageTitles.maintenance,
+  description: siteConfig.pageDescriptions.maintenance,
+  generator: siteConfig.generator,
 };
 
 export default function MaintanancePage() {

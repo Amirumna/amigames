@@ -1,4 +1,3 @@
-import React from "react"
 import "@/styles/globals.css"
 import type { Metadata } from "next"
 import Script from "next/script"
@@ -8,11 +7,12 @@ import PreloadAssets from "@/components/preload"
 import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Geist } from "next/font/google"
+import { siteConfig } from "@/lib/config"
 
 export const metadata: Metadata = {
-  title: "AmiVerse | HOME",
-  description: "AmiVerse is a Hub of Projects by AmiNET Development.",
-  generator: "aminetdevelopment.pages.dev",
+  title: siteConfig.pageTitles.home,
+  description: siteConfig.pageDescriptions.home,
+  generator: siteConfig.generator,
 }
 
 const geist = Geist({
@@ -24,23 +24,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={geist.className} suppressHydrationWarning>
       <head>
-        <Script id="dynamic-favicon" strategy="beforeInteractive">
-          {`
-            function updateFavicon() {
-              const darkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-              const faviconHref = darkMode ? '/icons/amigames.svg' : '/icons/amigames.svg';
-              let link = document.querySelector("link[rel~='icon']");
-              if (!link) {
-                link = document.createElement('link');
-                link.rel = 'icon';
-                document.getElementsByTagName('head')[0].appendChild(link);
-              }
-              link.href = faviconHref;
-            }
-            updateFavicon();
-            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateFavicon);
-          `}
-        </Script>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes, viewport-fit=cover" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="theme-color" content="#000000" />
+        <meta name="apple-mobile-web-app-title" content={siteConfig.appName} />
+        <link rel="icon" href={siteConfig.faviconPath} />
         <Script id="gtm-script" strategy="lazyOnload">
           {`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
           new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],

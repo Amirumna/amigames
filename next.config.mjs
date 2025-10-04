@@ -16,17 +16,27 @@ const nextConfig = {
   async redirects() {
     return [
       {
-        source: '/about',
+        source: '/home',
+        destination: '/',
+        permanent: true,
+      },      
+      {
+        source: '/games/honkai-star-rail',
         destination: '/maintanance',
         permanent: true,
       },
       {
-        source: '/home',
-        destination: '/',
+        source: '/games/valorant',
+        destination: '/maintanance',
         permanent: true,
       },
       {
-        source: '/games',
+        source: '/home/games/wuthering-waves',
+        destination: '/maintanance',
+        permanent: true,
+      },
+      {
+        source: '/about',
         destination: '/maintanance',
         permanent: true,
       },

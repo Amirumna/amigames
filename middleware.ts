@@ -19,7 +19,6 @@ function corsHeaders(req: NextRequest) {
 
 function securityHeaders() {
   return {
-    'X-Frame-Options': 'DENY',
     'X-Content-Type-Options': 'nosniff',
     'Referrer-Policy': 'strict-origin-when-cross-origin',
     'Permissions-Policy': 'geolocation=(), microphone=(), camera=()',
@@ -30,7 +29,7 @@ function securityHeaders() {
 export function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname
   const reqId = Math.random().toString(36).slice(2, 10)
-  const isDriveApi = path.startsWith('/api/gdrive-file') || path.startsWith('/api/gdrive-download')
+  const isDriveApi = path.startsWith('/api/gdrive-file') || path.startsWith('/api/gdrive-download') || path.startsWith('/api/file-viewer')
 
   if (isDriveApi && req.method === 'OPTIONS') {
     return new NextResponse(null, { status: 204, headers: { ...corsHeaders(req) } })
@@ -59,5 +58,3 @@ export function middleware(req: NextRequest) {
 export const config = {
   matcher: ['/api/:path*', '/kertas/:path*'],
 }
-
-

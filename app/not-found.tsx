@@ -2,11 +2,12 @@ import type { Metadata } from 'next'
 import { SiteHeader } from '@/components/site-header'
 import NotFoundClient from '@/components/notfound-client'
 import { copyrightText } from '@/components/appverse-footer'
+import { siteConfig } from '@/lib/config'
 
 export const metadata: Metadata = {
-  title: 'AmiVerse | 404 Not Found',
-  description: 'The requested resource could not be found but may be available again in the future. Please check the URL or return to the homepage.',
-  generator: 'aminetdevelopment.pages.dev',
+  title: siteConfig.pageTitles.notFound,
+  description: siteConfig.pageDescriptions.notFound,
+  generator: siteConfig.generator,
 };
 
 export default function NotFound() {

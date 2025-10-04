@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Alert, AlertTitle } from '@/components/ui/alert';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 interface NotificationProps {
   message: string;
@@ -16,9 +16,9 @@ const Notification: React.FC<NotificationProps> = ({ message, type, onclose }) =
   }, [onclose]);
 
   return (
-    <Alert variant={type === 'success' ? 'default' : 'destructive'}>
+    <Alert variant={type === 'success' ? 'default' : 'destructive'} className="mb-4">
       <AlertTitle>{type === 'success' ? 'Success' : 'Error'}</AlertTitle>
-      {message}
+      <AlertDescription>{message}</AlertDescription>
     </Alert>
   );
 };

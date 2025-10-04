@@ -1,6 +1,6 @@
 {
   "name": "amiverse",
-  "version": "2.0.1",
+  "version": "2.2.0",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
@@ -12,8 +12,6 @@
     "cf-typegen": "wrangler types --env-interface CloudflareEnv ./cloudflare-env.d.ts"
   },
   "dependencies": {
-    "@hookform/resolvers": "^3.10.0",
-    "@opennextjs/cloudflare": "^1.3.0",
     "@radix-ui/react-accordion": "latest",
     "@radix-ui/react-alert-dialog": "latest",
     "@radix-ui/react-aspect-ratio": "latest",
@@ -41,15 +39,14 @@
     "@radix-ui/react-toggle": "latest",
     "@radix-ui/react-toggle-group": "latest",
     "@radix-ui/react-tooltip": "latest",
-    "@react-email/components": "^0.5.3",
-    "@vercel/analytics": "^1.5.0",
-    "@vercel/speed-insights": "^1.2.0",
+    "@vercel/analytics": "latest",
+    "@vercel/speed-insights": "latest",
+    "@react-email/components": "latest",
+    "@hookform/resolvers": "^3.10.0",
+    "@opennextjs/cloudflare": "^1.3.0",
     "autoprefixer": "^10.4.20",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "cmdk": "latest",
-    "date-fns": "4.1.0",
-    "embla-carousel-react": "latest",
     "geist": "^1.5.1",
     "googleapis": "^160.0.0",
     "lucide-react": "^0.454.0",
@@ -60,13 +57,11 @@
     "react-dom": "^19",
     "react-hook-form": "latest",
     "react-markdown": "^10.1.0",
-    "react-resizable-panels": "latest",
-    "recharts": "latest",
     "resend": "^6.1.0",
     "sonner": "latest",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
-    "turbopack": "^0.0.1",
+    "turbopack": "latest",
     "zod": "3.25.67"
   },
   "devDependencies": {

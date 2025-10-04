@@ -83,9 +83,21 @@ function FileModal({ open, onClose, file }: { open: boolean; onClose: () => void
   const encodedId = encodeURIComponent(file.id);
   let content;
   if (file.mimeType.startsWith("image/")) {
-    content = <img src={`/api/gdrive-file?fileId=${encodedId}`} alt={file.name} className="max-w-full max-h-[70vh] rounded" />;
+    content = (
+      <img 
+        src={`/api/gdrive-file?fileId=${encodedId}`} 
+        alt={file.name} 
+        className="max-w-full max-h-[70vh] rounded" 
+        onError={(e) => {
+          console.error('Image load error:', e);
+          e.currentTarget.style.display = 'none';
+        }}
+        onLoad={() => {
+          console.log('Image loaded successfully');
+        }}
+      />
+    );
   } else if (file.mimeType.startsWith("video/")) {
-
     content = (
       <div className="w-full flex justify-center items-center">
         <iframe
@@ -99,14 +111,7 @@ function FileModal({ open, onClose, file }: { open: boolean; onClose: () => void
       </div>
     );
   } else if (file.mimeType === "application/pdf") {
-    content = (
-      <iframe
-        src={`/api/gdrive-file?fileId=${encodedId}&preview=1`}
-        className="w-full h-[70vh] border rounded"
-        title={file.name}
-        allow="autoplay"
-      />
-    );
+    content = <PdfPreview fileId={file.id} fileName={file.name} />;
   } else if (file.mimeType === "text/plain" || file.name.toLowerCase().endsWith('.txt')) {
     content = <TextPreview fileId={file.id} fileName={file.name} />;
   } else if (file.mimeType === "application/json" || file.name.toLowerCase().endsWith('.json')) {
@@ -622,6 +627,21 @@ function AudioPreview({ fileId, fileName }: { fileId: string; fileName: string }
           </p>
         </div>
       </div>
+    </div>
+  );
+}
+
+function PdfPreview({ fileId, fileName }: { fileId: string; fileName: string }) {
+  const encodedId = encodeURIComponent(fileId);
+
+  return (
+    <div className="w-full h-[70vh] bg-white rounded-lg overflow-hidden">
+      <iframe
+        src={`/api/file-viewer?fileId=${encodedId}&preview=1`}
+        className="w-full h-full border-0 rounded-lg"
+        title={fileName}
+        loading="lazy"
+      />
     </div>
   );
 }
