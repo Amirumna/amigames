@@ -120,21 +120,9 @@ export async function getAllCharacters(): Promise<GenshinCharacter[]> {
   }
 }
 
-// Add this helper above your existing exports
-function resolveSlug(name: string) {
-  const mapped = CHARACTER_NAME_MAP[name] ?? name
-  return mapped
-    .toLowerCase()
-    .normalize('NFKD')
-    .replace(/[^\w\s-]/g, '')
-    .trim()
-    .replace(/\s+/g, '-')
-}
-
 export async function getCharacter(name: string): Promise<GenshinCharacter | null> {
   try {
-    const slug = resolveSlug(name)
-    const response = await fetch(`${GENSHIN_API_BASE}/characters/${slug}`)
+    const response = await fetch(`${GENSHIN_API_BASE}/characters/${name.toLowerCase()}`)
     if (!response.ok) throw new Error('Failed to fetch character')
     return await response.json()
   } catch (error) {
@@ -143,10 +131,20 @@ export async function getCharacter(name: string): Promise<GenshinCharacter | nul
   }
 }
 
+export async function getAllWeapons(): Promise<GenshinWeapon[]> {
+  try {
+    const response = await fetch(`${GENSHIN_API_BASE}/weapons`)
+    if (!response.ok) throw new Error('Failed to fetch weapons')
+    return await response.json()
+  } catch (error) {
+    console.error('Error fetching weapons:', error)
+    return []
+  }
+}
+
 export async function getWeapon(name: string): Promise<GenshinWeapon | null> {
   try {
-    const slug = resolveSlug(name)
-    const response = await fetch(`${GENSHIN_API_BASE}/weapons/${slug}`)
+    const response = await fetch(`${GENSHIN_API_BASE}/weapons/${name.toLowerCase()}`)
     if (!response.ok) throw new Error('Failed to fetch weapon')
     return await response.json()
   } catch (error) {
@@ -155,18 +153,27 @@ export async function getWeapon(name: string): Promise<GenshinWeapon | null> {
   }
 }
 
+export async function getAllArtifacts(): Promise<GenshinArtifact[]> {
+  try {
+    const response = await fetch(`${GENSHIN_API_BASE}/artifacts`)
+    if (!response.ok) throw new Error('Failed to fetch artifacts')
+    return await response.json()
+  } catch (error) {
+    console.error('Error fetching artifacts:', error)
+    return []
+  }
+}
+
 export async function getArtifact(name: string): Promise<GenshinArtifact | null> {
   try {
-    const slug = resolveSlug(name)
-    const response = await fetch(`${GENSHIN_API_BASE}/artifacts/${slug}`)
+    const response = await fetch(`${GENSHIN_API_BASE}/artifacts/${name.toLowerCase()}`)
     if (!response.ok) throw new Error('Failed to fetch artifact')
     return await response.json()
   } catch (error) {
     console.error(`Error fetching artifact ${name}:`, error)
     return null
   }
-   }
- }
+}
 
 export const CHARACTER_NAME_MAP: Record<string, string> = {
   'Tighnari': 'tighnari',
