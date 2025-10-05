@@ -276,20 +276,3 @@ a[href*="v0.dev"] *,
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
-
-.lightning-container {
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  top: 0;
-  left: 0;
-  border-radius: inherit;
-  z-index: 0;
-}
-
-.plasma-container {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}

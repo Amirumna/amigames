@@ -3,7 +3,7 @@
 import type React from "react"
 import { useEffect, useRef } from "react"
 import { Renderer, Program, Mesh, Triangle } from "ogl"
-import "@/styles/globals.css"
+import "@/styles/plasma.css"
 
 interface PlasmaProps {
   color?: string
