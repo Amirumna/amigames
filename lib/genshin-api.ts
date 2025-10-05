@@ -165,8 +165,8 @@ export async function getArtifact(name: string): Promise<GenshinArtifact | null>
     console.error(`Error fetching artifact ${name}:`, error)
     return null
   }
-}
-}
+   }
+ }
 
 export const CHARACTER_NAME_MAP: Record<string, string> = {
   'Tighnari': 'tighnari',
