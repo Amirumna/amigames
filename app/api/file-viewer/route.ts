@@ -7,7 +7,7 @@ export async function GET(request: Request) {
   const wantDownload = searchParams.get('download') === '1' || searchParams.get('download') === 'true';
   
   if (!fileId || typeof fileId !== 'string' || fileId.length < 5) {
-    console.error('[gdrive-file] Missing or invalid fileId', { fileId });
+    console.error('[file-viewer] Missing or invalid fileId', { fileId });
     return NextResponse.json({ error: 'Missing or invalid fileId' }, { status: 400 });
   }
 
@@ -18,6 +18,7 @@ export async function GET(request: Request) {
     const mimeType = metadata?.mimeType || 'application/octet-stream';
     const { stream, headers } = await downloadFile(fileId, range);
     const resHeaders: Record<string, string> = {};
+    
     for (const [key, value] of Object.entries(headers)) {
       if (typeof value === 'string') resHeaders[key] = value;
       else if (Array.isArray(value)) resHeaders[key] = value.join(', ');
@@ -34,10 +35,6 @@ export async function GET(request: Request) {
     resHeaders['Vary'] = 'Origin, Range';
     
     resHeaders['X-Content-Type-Options'] = 'nosniff';
-    resHeaders['X-Download-Options'] = 'noopen';
-    resHeaders['Referrer-Policy'] = 'strict-origin-when-cross-origin';
-    resHeaders['X-Robots-Tag'] = 'noindex, nofollow';
-    resHeaders['Cache-Control'] = 'public, max-age=3600, must-revalidate';
     
     if (metadata?.name) {
       const disposition = wantDownload ? 'attachment' : 'inline';
@@ -53,16 +50,11 @@ export async function GET(request: Request) {
     if (gEtag) resHeaders['ETag'] = String(gEtag);
     else if (m?.md5Checksum) resHeaders['ETag'] = `W/"md5-${m.md5Checksum}-${m.size}-${m.modifiedTime}"`;
     
-    if (mimeType.startsWith('audio/')) {
-      resHeaders['Accept-Ranges'] = 'bytes';
-      resHeaders['Content-Type'] = mimeType;
-      delete resHeaders['transfer-encoding'];
-    }
-    
     if (mimeType === 'application/pdf' && !wantDownload) {
       resHeaders['Content-Disposition'] = 'inline';
-      resHeaders['X-Content-Type-Options'] = 'nosniff';
       delete resHeaders['X-Frame-Options'];
+      resHeaders['X-Content-Type-Options'] = 'nosniff';
+      resHeaders['Cache-Control'] = 'public, max-age=3600';
     }
     
     const status = range ? 206 : 200;
@@ -72,7 +64,7 @@ export async function GET(request: Request) {
     });
   } catch (error) {
     const message = typeof error === 'object' && error !== null && 'message' in error ? (error as any).message : String(error);
-    console.error('[gdrive-file] Download error', { fileId, error: message });
+    console.error('[file-viewer] Download error', { fileId, error: message });
     
     const errorResponse = NextResponse.json({ 
       error: 'Failed to load file', 
@@ -91,6 +83,7 @@ export async function HEAD(request: Request) {
   const { searchParams } = new URL(request.url);
   const fileId = searchParams.get('fileId');
   if (!fileId) return new Response(null, { status: 400 });
+  
   try {
     const metadata = await import('@/lib/gdrive').then(mod => mod.getFileMetadata(fileId));
     const headers: Record<string, string> = {

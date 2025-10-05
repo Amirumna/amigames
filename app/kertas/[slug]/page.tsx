@@ -4,15 +4,14 @@ import Script from "next/script"
 import GDriveList from "@/components/gdrive-list"
 import { SiteHeader } from "@/components/site-header"
 import { AppverseFooter } from "@/components/appverse-footer"
-import { siteConfig } from "@/lib/config"
 
 export const metadata: Metadata = {
-  title: siteConfig.pageTitles.kertas,
-  description: siteConfig.pageDescriptions.kertas,
-  generator: siteConfig.generator,
+  title: 'AmiVerse | KERTAS',
+  description: 'Kertas is a public Google Drive directory index. Browse, preview, and download files securely.',
+  generator: 'aminetdevelopment.pages.dev',
 };
 
-export default function KertasPage() {
+export default function KertasSlugPage() {
   return (
     <main className="min-h-[100dvh] text-white px-4 sm:px-6 md:px-8">
         <Script id="dynamic-favicon" strategy="beforeInteractive">

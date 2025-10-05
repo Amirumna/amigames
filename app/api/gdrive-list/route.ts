@@ -1,15 +1,20 @@
 import { NextResponse } from 'next/server'
 import { listFilesInFolder } from '@/lib/gdrive'
 
-const ROOT_FOLDER_ID = '1_yCFzAVw94nrgq46kcOjZrNH7mI7vaY1';
+const ROOT_FOLDER_ID = process.env.ROOT_FOLDER_ID
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const folderId = searchParams.get('folderId') || ROOT_FOLDER_ID;
+  const folderParam = searchParams.get('folderId');
+  const folderId = folderParam || ROOT_FOLDER_ID;
   const pageToken = searchParams.get('pageToken') || undefined;
-  const pageSize = searchParams.get('pageSize') ? parseInt(searchParams.get('pageSize')!) : 100;
+  const pageSize = Math.max(1, Math.min(200, searchParams.get('pageSize') ? parseInt(searchParams.get('pageSize')!) : 100));
 
   if (!folderId || typeof folderId !== 'string' || folderId.length < 5) {
+    if (!folderParam && !ROOT_FOLDER_ID) {
+      console.error('[gdrive-list] ROOT_FOLDER_ID not set');
+      return NextResponse.json({ error: 'Server misconfiguration' }, { status: 500 });
+    }
     console.error('[gdrive-list] Missing or invalid folderId', { folderId });
     return NextResponse.json({ error: 'Missing or invalid folderId' }, { status: 400 });
   }

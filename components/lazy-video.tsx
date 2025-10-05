@@ -28,6 +28,17 @@ export default function LazyVideo({
 }: LazyVideoProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const [loaded, setLoaded] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   useEffect(() => {
     const el = videoRef.current
@@ -41,7 +52,7 @@ export default function LazyVideo({
           el.src = src
           el.load()
 
-          if (autoplay) {
+          if (autoplay && !isMobile) {
             const playVideo = async () => {
               try {
                 await el.play()
@@ -58,13 +69,13 @@ export default function LazyVideo({
           }
 
           setLoaded(true)
-        } else if (!entry.isIntersecting && loaded && autoplay) {
+        } else if (!entry.isIntersecting && loaded && autoplay && !isMobile) {
           try {
             el.pause()
           } catch (error) {
             console.log("Error pausing video:", error)
           }
-        } else if (entry.isIntersecting && loaded && autoplay) {
+        } else if (entry.isIntersecting && loaded && autoplay && !isMobile) {
           try {
             await el.play()
           } catch (error) {
@@ -75,13 +86,13 @@ export default function LazyVideo({
     }
 
     observer = new IntersectionObserver(onIntersect, {
-      rootMargin: "50px",
+      rootMargin: isMobile ? "100px" : "50px",
       threshold: 0.1,
     })
     observer.observe(el)
 
     return () => observer?.disconnect()
-  }, [src, loaded, autoplay])
+  }, [src, loaded, autoplay, isMobile])
 
   return (
     <video
@@ -91,9 +102,16 @@ export default function LazyVideo({
       loop={loop}
       playsInline={playsInline}
       controls={controls}
-      preload="none"
+      preload={isMobile ? "metadata" : "none"}
       poster={poster}
       aria-label={ariaLabel}
+      style={{
+        objectFit: 'cover',
+        ...(isMobile && { 
+          WebkitPlaysinline: 'true',
+          playsInline: true 
+        })
+      }}
       {...props}
     >
       Your browser does not support the video tag.

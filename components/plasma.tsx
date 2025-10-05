@@ -47,6 +47,7 @@ uniform float uScale;
 uniform float uOpacity;
 uniform vec2 uMouse;
 uniform float uMouseInteractive;
+uniform float uIterations;
 out vec4 fragColor;
 
 void mainImage(out vec4 o, vec2 C) {
@@ -59,7 +60,7 @@ void mainImage(out vec4 o, vec2 C) {
   float i, d, z, T = iTime * uSpeed * uDirection;
   vec3 O, p, S;
 
-  for (vec2 r = iResolution.xy, Q; ++i < 60.; O += o.w/d*o.xyz) {
+  for (vec2 r = iResolution.xy, Q; ++i < uIterations; O += o.w/d*o.xyz) {
     p = z*normalize(vec3(C-.5*r,r.y)); 
     p.z -= 4.; 
     S = p;
@@ -111,7 +112,9 @@ export const Plasma: React.FC<PlasmaProps> = ({
     if (!containerRef.current) return
 
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+    const isAndroid = /Android/.test(navigator.userAgent)
     const isMobile = window.innerWidth < 768
+    const isLowEndDevice = isMobile && (isIOS || isAndroid)
 
     const useCustomColor = color ? 1.0 : 0.0
     const customColorRgb = color ? hexToRgb(color) : [1, 1, 1]
@@ -121,7 +124,8 @@ export const Plasma: React.FC<PlasmaProps> = ({
       webgl: 2,
       alpha: true,
       antialias: false,
-      dpr: Math.min(window.devicePixelRatio || 1, 2) * (isIOS || isMobile ? 0.5 : 1),
+      dpr: isLowEndDevice ? 0.5 : Math.min(window.devicePixelRatio || 1, isMobile ? 1.5 : 2),
+      powerPreference: isLowEndDevice ? "low-power" : "high-performance",
     })
     const gl = renderer.gl
     const canvas = gl.canvas as HTMLCanvasElement
@@ -146,6 +150,7 @@ export const Plasma: React.FC<PlasmaProps> = ({
         uOpacity: { value: opacity },
         uMouse: { value: new Float32Array([0, 0]) },
         uMouseInteractive: { value: isIOS ? 0.0 : mouseInteractive ? 1.0 : 0.0 },
+        uIterations: { value: isLowEndDevice ? 30 : 60 },
       },
     })
 
@@ -180,9 +185,12 @@ export const Plasma: React.FC<PlasmaProps> = ({
     let raf = 0
     let lastTime = 0
     const t0 = performance.now()
+    const targetFPS = isLowEndDevice ? 30 : 60
+    const frameInterval = 1000 / targetFPS
+    
     const loop = (t: number) => {
       const delta = t - lastTime
-      if (!isIOS || delta > 33) {
+      if (delta >= frameInterval) {
         const timeValue = (t - t0) * 0.001
         if (direction === "pingpong") {
           const cycle = Math.sin(timeValue * 0.5) * directionMultiplier

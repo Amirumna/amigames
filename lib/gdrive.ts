@@ -1,10 +1,8 @@
 import { google } from "googleapis"
-import crypto from "crypto"
+import nodeCrypto from "crypto"
+import type { DriveListResponse, DriveFile } from "./types"
 
 const HMAC_SECRET = process.env.GDRIVE_HMAC_SECRET
-if (!HMAC_SECRET) {
-  throw new Error("GDRIVE_HMAC_SECRET environment variable is required")
-}
 
 const SCOPES = ["https://www.googleapis.com/auth/drive.readonly"]
 
@@ -38,16 +36,20 @@ function getDriveClient() {
 }
 
 export function generateDownloadToken(fileId: string, expiry: number, userIp?: string): string {
+  if (!HMAC_SECRET) throw new Error("GDRIVE_HMAC_SECRET environment variable is required")
   const data = userIp ? `${fileId}|${expiry}|${userIp}` : `${fileId}|${expiry}`
-  return crypto.createHmac("sha256", HMAC_SECRET).update(data).digest("hex")
+  return nodeCrypto.createHmac('sha256', HMAC_SECRET).update(data).digest('hex')
 }
 
 export function verifyDownloadToken(fileId: string, expiry: number, token: string, userIp?: string): boolean {
+  if (!HMAC_SECRET) {
+    return false
+  }
   const expected = generateDownloadToken(fileId, expiry, userIp)
   return expected === token && Date.now() < expiry
 }
 
-export async function searchFilesInDrive(query: string, pageToken?: string, pageSize = 100) {
+export async function searchFilesInDrive(query: string, pageToken?: string, pageSize = 100): Promise<DriveListResponse> {
   try {
     if (typeof query !== "string" || query.length < 1) {
       throw new Error("Missing or invalid query")
@@ -62,7 +64,19 @@ export async function searchFilesInDrive(query: string, pageToken?: string, page
       supportsAllDrives: true,
       includeItemsFromAllDrives: true,
     })
-    return { files: res.data.files, nextPageToken: res.data.nextPageToken }
+    const files: DriveFile[] = (res.data.files ?? [])
+      .filter(f => !!f.id && !!f.name && !!f.mimeType)
+      .map(f => ({
+        id: f.id as string,
+        name: f.name as string,
+        mimeType: f.mimeType as string,
+        size: (f.size ?? undefined) as string | undefined,
+        thumbnailLink: f.thumbnailLink ?? undefined,
+        iconLink: f.iconLink ?? undefined,
+        modifiedTime: f.modifiedTime ?? undefined,
+        driveId: (f as any).driveId,
+      }))
+    return { files, nextPageToken: res.data.nextPageToken ?? undefined }
   } catch (error) {
     const message =
       typeof error === "object" && error !== null && "message" in error ? (error as any).message : String(error)
@@ -75,7 +89,7 @@ export function generateDownloadLink(fileId: string) {
   return `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`
 }
 
-export async function listFilesInFolder(folderId: string, pageToken?: string, pageSize = 100) {
+export async function listFilesInFolder(folderId: string, pageToken?: string, pageSize = 100): Promise<DriveListResponse> {
   try {
     if (typeof folderId !== "string" || folderId.length < 5) {
       throw new Error("Missing or invalid folderId")
@@ -90,7 +104,19 @@ export async function listFilesInFolder(folderId: string, pageToken?: string, pa
       supportsAllDrives: true,
       includeItemsFromAllDrives: true,
     })
-    return { files: res.data.files, nextPageToken: res.data.nextPageToken }
+    const files: DriveFile[] = (res.data.files ?? [])
+      .filter(f => !!f.id && !!f.name && !!f.mimeType)
+      .map(f => ({
+        id: f.id as string,
+        name: f.name as string,
+        mimeType: f.mimeType as string,
+        size: (f.size ?? undefined) as string | undefined,
+        thumbnailLink: f.thumbnailLink ?? undefined,
+        iconLink: f.iconLink ?? undefined,
+        modifiedTime: f.modifiedTime ?? undefined,
+        driveId: (f as any).driveId,
+      }))
+    return { files, nextPageToken: res.data.nextPageToken ?? undefined }
   } catch (error) {
     const message =
       typeof error === "object" && error !== null && "message" in error ? (error as any).message : String(error)
@@ -108,7 +134,7 @@ export async function getFileMetadata(fileId: string) {
     const drive = getDriveClient()
     const res = await drive.files.get({
       fileId: safeFileId,
-      fields: "id, name, mimeType, size, thumbnailLink",
+      fields: "id, name, mimeType, size, thumbnailLink, md5Checksum, modifiedTime",
       supportsAllDrives: true,
     })
     return res.data
