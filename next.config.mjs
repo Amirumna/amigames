@@ -22,22 +22,22 @@ const nextConfig = {
       },      
       {
         source: '/games/honkai-star-rail',
-        destination: '/maintanance',
+        destination: '/maintenance',
         permanent: true,
       },
       {
         source: '/games/valorant',
-        destination: '/maintanance',
+        destination: '/maintenance',
         permanent: true,
       },
       {
         source: '/home/games/wuthering-waves',
-        destination: '/maintanance',
+        destination: '/maintenance',
         permanent: true,
       },
       {
         source: '/about',
-        destination: '/maintanance',
+        destination: '/maintenance',
         permanent: true,
       },
     ]

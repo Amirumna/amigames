@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   generator: siteConfig.generator,
 };
 
-export default function MaintanancePage() {
+export default function MaintenancePage() {
   return (
     <div className="flex min-h-screen flex-col">
       <SiteHeader />
