@@ -284,7 +284,7 @@ amigames/
 
 3. **Preview deployment**
    ```bash
-   npm run dev
+   npm run preview
    ```
 
 ### Environment Variables for Production

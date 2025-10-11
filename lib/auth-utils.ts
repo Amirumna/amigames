@@ -3,7 +3,7 @@ import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { getDriveWithPassword, getDriveBySlug } from './drives-config';
 
-const SESSION_SECRET = process.env.SESSION_SECRET;
+const SESSION_SECRET = process.env.SESSION_SECRET || 'ýour-session-secret';
 if (!SESSION_SECRET) {
   throw new Error('SESSION_SECRET environment variable is required');
 }
