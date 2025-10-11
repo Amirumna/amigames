@@ -12,7 +12,7 @@ const nextConfig = {
   turbopack: {
     root: './',
   },
-  allowedDevOrigins: ['local-origin.dev', '*.local-origin.dev'],
+  allowedDevOrigins: ['local-origin.dev', '*.local-origin.dev', '192.168.43.*'],
   async redirects() {
     return [
       {

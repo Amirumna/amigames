@@ -29,7 +29,8 @@ function securityHeaders() {
 export function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname
   const reqId = Math.random().toString(36).slice(2, 10)
-  const isDriveApi = path.startsWith('/api/gdrive-file') || path.startsWith('/api/gdrive-download') || path.startsWith('/api/file-viewer')
+  const isDriveApi = path.startsWith('/api/gdrive')
+  const isKertasRoute = path.startsWith('/kertas/')
 
   if (isDriveApi && req.method === 'OPTIONS') {
     return new NextResponse(null, { status: 204, headers: { ...corsHeaders(req) } })
@@ -40,6 +41,22 @@ export function middleware(req: NextRequest) {
       status: 405,
       headers: { 'Content-Type': 'application/json', ...corsHeaders(req) },
     })
+  }
+
+  if (isKertasRoute && path !== '/kertas') {
+    const pathSegments = path.split('/').filter(Boolean)
+    if (pathSegments.length >= 2) {
+      const driveSlug = pathSegments[1]
+      
+      if (driveSlug !== 'public') {
+        const token = req.cookies.get('drive-auth')?.value
+        
+        if (!token) {
+          return NextResponse.redirect(new URL('/kertas', req.url))
+        }
+        
+      }
+    }
   }
 
   const res = NextResponse.next()

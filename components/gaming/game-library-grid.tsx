@@ -43,7 +43,6 @@ export function GameLibraryGrid({
   const [selectedSort, setSelectedSort] = useState(sortBy)
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
 
-  // Get unique values for filters
   const getFilterOptions = () => {
     switch (filterBy) {
       case 'genre':
@@ -57,7 +56,6 @@ export function GameLibraryGrid({
     }
   }
 
-  // Filter and sort games
   const filteredAndSortedGames = games
     .filter(game => {
       const matchesSearch = game.name.toLowerCase().includes(searchTerm.toLowerCase())
