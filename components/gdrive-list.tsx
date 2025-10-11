@@ -2,11 +2,12 @@
 
 import React, { useEffect, useState, useRef, useMemo, useTransition } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { X, Folder, MoreVertical, LayoutGrid, List as ListIcon, FileText, File, Image, Video, FileJson, FileCode, Archive, Music } from "lucide-react"
+import Link from "next/link"
+import { X, Folder, MoreVertical, LayoutGrid, List as ListIcon, FileText, File, Image, Video, FileJson, FileCode, Archive, Music, ArrowLeft, Home, ChevronDown } from "lucide-react"
 import ReactMarkdown from "react-markdown"
 
 async function fetchFileContent(fileId: string): Promise<string> {
-  const res = await fetch(`/api/gdrive-file?fileId=${fileId}`);
+  const res = await fetch(`/api/gdrive?action=stream&fileId=${fileId}`);
   if (!res.ok) return "";
   return await res.text();
 }
@@ -77,7 +78,7 @@ function getFileTypeLabel(mimeType: string, fileName: string) {
   return mimeType.split('/')[0].toUpperCase();
 }
 
-function FileModal({ open, onClose, file }: { open: boolean; onClose: () => void; file: any }) {
+function FileModal({ open, onClose, file, driveSlug }: { open: boolean; onClose: () => void; file: any; driveSlug?: string }) {
   const [copyStatus, setCopyStatus] = React.useState<string>("");
   if (!open || !file) return null;
   const encodedId = encodeURIComponent(file.id);
@@ -85,15 +86,12 @@ function FileModal({ open, onClose, file }: { open: boolean; onClose: () => void
   if (file.mimeType.startsWith("image/")) {
     content = (
       <img 
-        src={`/api/gdrive-file?fileId=${encodedId}`} 
+        src={`/api/gdrive?action=stream&fileId=${encodedId}`} 
         alt={file.name} 
         className="max-w-full max-h-[70vh] rounded" 
         onError={(e) => {
           console.error('Image load error:', e);
           e.currentTarget.style.display = 'none';
-        }}
-        onLoad={() => {
-          console.log('Image loaded successfully');
         }}
       />
     );
@@ -123,7 +121,7 @@ function FileModal({ open, onClose, file }: { open: boolean; onClose: () => void
   }
   function handleDirectDownload() {
     const link = document.createElement('a');
-    link.href = `/api/gdrive-file?fileId=${encodedId}&download=1`;
+    link.href = `/api/gdrive?action=stream&fileId=${encodedId}&download=1`;
     link.download = file.name;
     document.body.appendChild(link);
     link.click();
@@ -132,8 +130,8 @@ function FileModal({ open, onClose, file }: { open: boolean; onClose: () => void
 
   const appOrigin = typeof window !== "undefined" ? window.location.origin : "";
   const shareLink = file.mimeType === "application/vnd.google-apps.folder"
-    ? `${appOrigin}/kertas?folderId=${file.id}`
-    : `${appOrigin}/api/gdrive-file?fileId=${file.id}`;
+    ? `${appOrigin}/kertas${driveSlug ? `/${driveSlug}` : ''}?folderId=${file.id}`
+    : `${appOrigin}/api/gdrive?action=stream&fileId=${file.id}`;
 
   function handleCopyShareLink() {
     const input = document.getElementById(`share-link-input-${file.id}`) as HTMLInputElement | null;
@@ -199,7 +197,12 @@ function FileModal({ open, onClose, file }: { open: boolean; onClose: () => void
     </div>
   );
 }
-export default function GDriveList() {
+interface GDriveListProps {
+  driveSlug?: string;
+  currentPathFolders?: string[];
+}
+
+export default function GDriveList({ driveSlug, currentPathFolders = [] }: GDriveListProps = {}) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [files, setFiles] = useState<any[]>([]);
@@ -231,7 +234,11 @@ export default function GDriveList() {
       controllerRef.current = controller;
       try {
         const folderId = folderStack[folderStack.length - 1];
-        const res = await fetch(`/api/gdrive-list${folderId ? `?folderId=${folderId}` : ""}`, { signal: controller.signal });
+        const queryParams = new URLSearchParams();
+        if (folderId) queryParams.set('folderId', folderId);
+        if (driveSlug) queryParams.set('driveSlug', driveSlug);
+        
+        const res = await fetch(`/api/gdrive?action=list&${queryParams.toString()}`, { signal: controller.signal });
         if (!res.ok) throw new Error("Failed to fetch files");
         const data = await res.json() as { files: any[] };
         setFiles(data.files || []);
@@ -254,23 +261,23 @@ export default function GDriveList() {
     const folder = files.find((f: any) => f.id === id);
     if (folder && folder.name) {
       const slug = encodeURIComponent(folder.name);
-      router.push(`/kertas/${slug}?folderId=${id}`);
+      if (driveSlug) {
+        const currentPath = currentPathFolders.join('/');
+        const newPath = currentPath ? `${currentPath}/${slug}` : slug;
+        router.push(`/kertas/${driveSlug}/${newPath}?folderId=${id}`);
+      } else {
+        router.push(`/kertas/${slug}?folderId=${id}`);
+      }
     }
     if (typeof window !== 'undefined') {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }
-  function handleBackClick() {
-    setFolderStack(folderStack.slice(0, -1));
-    if (typeof window !== 'undefined' && window.history.length > 1) {
-      window.history.back();
-    }
-  }
 
   const filteredFiles = useMemo(() => {
-    if (!search) return files;
-    const q = search.toLowerCase();
-    return files.filter((file) => file.name.toLowerCase().includes(q));
+    if (!search.trim()) return files;
+    const query = search.toLowerCase().trim();
+    return files.filter((file) => file.name.toLowerCase().includes(query));
   }, [files, search]);
 
   if (error) return <div className="text-center py-8 text-red-500">Error: {error}</div>;
@@ -279,7 +286,18 @@ export default function GDriveList() {
     <>
       <section className="w-full max-w-6xl mx-auto bg-[#181A20] rounded-xl p-4 sm:p-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
-          <h2 className="text-lg sm:text-xl font-semibold">Browse files</h2>
+          <div className="flex items-center gap-3">
+            <h2 className="text-lg sm:text-xl font-semibold">Browse files</h2>
+          {driveSlug && (
+            <Link
+              href="/kertas"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-lg shadow-sm hover:shadow-md transition-all duration-200 border border-blue-400"
+            >
+              <Home size={16} />
+              Back to Drives
+            </Link>
+          )}
+          </div>
           <div className="flex flex-wrap items-center gap-2">
             <button
               className={`px-2 py-1 sm:px-3 sm:py-2 rounded-lg border border-gray-700 flex items-center gap-2 ${viewMode === 'grid' ? 'bg-gray-800 text-white' : 'bg-gray-900 text-gray-400'}`}
@@ -299,9 +317,9 @@ export default function GDriveList() {
               type="text"
               value={search}
               onChange={(e) => {
-                const v = e.target.value;
+                const value = e.target.value;
                 window.clearTimeout((window as any)._kertasDbT);
-                (window as any)._kertasDbT = window.setTimeout(() => setSearch(v), 200);
+                (window as any)._kertasDbT = window.setTimeout(() => setSearch(value), 200);
               }}
               placeholder="Search..."
               className="px-2 py-1 sm:px-3 sm:py-2 rounded-lg border border-gray-700 bg-gray-900 text-white focus:outline-none"
@@ -310,15 +328,96 @@ export default function GDriveList() {
           </div>
         </div>
         {loading && (
-          <p className="text-center text-lg sm:text-xl text-gray-300 my-6">Loading…</p>
+          <p className="text-center text-lg sm:text-xl text-gray-300 my-6">Loading...</p>
         )}
+        {driveSlug && !loading && (
+          <div className="mb-4">
+            <div className="flex items-center gap-2 text-sm text-gray-400">
+              <Link 
+                href="/kertas"
+                className="hover:text-white transition-colors px-1 py-0.5 rounded hover:bg-gray-700"
+              >
+                🏠 Drives
+              </Link>
+              
+              <span>/</span>
+              <Link
+                href={`/kertas/${driveSlug}`}
+                className="text-white capitalize hover:text-blue-400 transition-colors px-1 py-0.5 rounded hover:bg-gray-700"
+              >
+                📁 {driveSlug}
+              </Link>
+              
+              {currentPathFolders.map((folderSlug, index) => (
+                <React.Fragment key={folderSlug}>
+                  <span>/</span>
+                  {index < currentPathFolders.length - 1 ? (
+                    <Link
+                      href={`/kertas/${driveSlug}/${currentPathFolders.slice(0, index + 1).join('/')}`}
+                      className="text-white hover:text-blue-400 transition-colors px-1 py-0.5 rounded hover:bg-gray-700"
+                    >
+                      📁 {decodeURIComponent(folderSlug)}
+                    </Link>
+                  ) : (
+                    <span className="text-white">📁 {decodeURIComponent(folderSlug)}</span>
+                  )}
+                </React.Fragment>
+              ))}
+            </div>
+            
+            {currentPathFolders.length > 0 && (
+              <div className="mt-3 flex flex-wrap gap-2">
+                <button
+                  onClick={() => {
+                    const newPath = currentPathFolders.slice(0, -1);
+                    if (newPath.length > 0) {
+                      router.push(`/kertas/${driveSlug}/${newPath.join('/')}`);
+                    } else {
+                      router.push(`/kertas/${driveSlug}`);
+                    }
+                  }}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-black text-sm font-medium rounded-lg shadow-sm hover:shadow-md transition-all duration-200 border border-yellow-400"
+                >
+                  <ArrowLeft size={16} />
+                  Back to {currentPathFolders.length > 1 ? 'Previous Folder' : 'Drive Root'}
+                </button>
+                
+                {!(driveSlug && folderStack.length > 1) && (
+                  <button
+                    onClick={() => {
+                      setFolderStack([folderStack[0]]);
+                      router.push(`/kertas/${driveSlug}`);
+                    }}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 text-white text-sm font-medium rounded-lg shadow-sm hover:shadow-md transition-all duration-200 border border-green-400"
+                  >
+                    <ArrowLeft size={16} />
+                    Back to {driveSlug.charAt(0).toUpperCase() + driveSlug.slice(1)}
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
         {folderStack.length > 0 && !loading && (
-          <button
-            onClick={handleBackClick}
-            className="mb-4 px-3 py-2 bg-yellow-500 text-black rounded hover:bg-yellow-600 w-full sm:w-auto"
-          >
-            ← Back
-          </button>
+          <div className="mb-4 space-y-2">
+            
+            <div className="flex flex-wrap gap-3">
+              {driveSlug && folderStack.length > 1 && (
+                <button
+                  onClick={() => {
+                    setFolderStack([folderStack[0]]); // Go to drive root
+                    router.push(`/kertas/${driveSlug}`);
+                  }}
+                  className="inline-flex items-center gap-2 px-4 py-2.5 bg-green-500 hover:bg-green-600 text-white text-sm font-medium rounded-lg shadow-sm hover:shadow-md transition-all duration-200 border border-green-400"
+                >
+                  <ArrowLeft size={16} />
+                  Back to {driveSlug.charAt(0).toUpperCase() + driveSlug.slice(1)}
+                </button>
+              )}
+              
+            </div>
+          </div>
         )}
         {readmeId && (
           <div className="mb-6">
@@ -335,8 +434,8 @@ export default function GDriveList() {
               }
               const appOrigin = typeof window !== "undefined" ? window.location.origin : "";
               const shareLink = isFolder
-                ? `${appOrigin}/kertas?folderId=${file.id}`
-                : `${appOrigin}/api/gdrive-file?fileId=${file.id}`;
+                ? `${appOrigin}/kertas${driveSlug ? `/${driveSlug}` : ''}${currentPathFolders.length > 0 ? `/${currentPathFolders.join('/')}` : ''}?folderId=${file.id}`
+                : `${appOrigin}/api/gdrive?action=stream&fileId=${file.id}`;
               if (isFolder) {
                 return (
                   <div
@@ -419,7 +518,7 @@ export default function GDriveList() {
           </ul>
         ))}
       </section>
-      <FileModal open={!!previewFile} onClose={() => setPreviewFile(null)} file={previewFile} />
+      <FileModal open={!!previewFile} onClose={() => setPreviewFile(null)} file={previewFile} driveSlug={driveSlug} />
     </>
   );
 }
@@ -490,7 +589,7 @@ function AudioPreview({ fileId, fileName }: { fileId: string; fileName: string }
     
     const downloadAudio = async () => {
       try {
-        const response = await fetch(`/api/gdrive-file?fileId=${encodeURIComponent(fileId)}`);
+        const response = await fetch(`/api/gdrive?action=stream&fileId=${encodeURIComponent(fileId)}`);
         
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -637,7 +736,7 @@ function PdfPreview({ fileId, fileName }: { fileId: string; fileName: string }) 
   return (
     <div className="w-full h-[70vh] bg-white rounded-lg overflow-hidden">
       <iframe
-        src={`/api/file-viewer?fileId=${encodedId}&preview=1`}
+        src={`/api/gdrive?action=stream&fileId=${encodedId}&preview=1`}
         className="w-full h-full border-0 rounded-lg"
         title={fileName}
         loading="lazy"

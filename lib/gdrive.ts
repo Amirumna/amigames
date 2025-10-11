@@ -80,7 +80,7 @@ export async function searchFilesInDrive(query: string, pageToken?: string, page
   } catch (error) {
     const message =
       typeof error === "object" && error !== null && "message" in error ? (error as any).message : String(error)
-    console.error("[gdrive-lib] searchFilesInDrive error", { query, error: message })
+    console.error("searchFilesInDrive error", { query, error: message })
     throw new Error(message)
   }
 }
@@ -120,7 +120,7 @@ export async function listFilesInFolder(folderId: string, pageToken?: string, pa
   } catch (error) {
     const message =
       typeof error === "object" && error !== null && "message" in error ? (error as any).message : String(error)
-    console.error("[gdrive-lib] listFilesInFolder error", { folderId, error: message })
+    console.error("listFilesInFolder error", { folderId, error: message })
     throw new Error(message)
   }
 }
@@ -141,7 +141,7 @@ export async function getFileMetadata(fileId: string) {
   } catch (error) {
     const message =
       typeof error === "object" && error !== null && "message" in error ? (error as any).message : String(error)
-    console.error("[gdrive-lib] getFileMetadata error", { fileId, error: message })
+    console.error("getFileMetadata error", { fileId, error: message })
     throw new Error(message)
   }
 }
@@ -169,7 +169,7 @@ export async function downloadFile(fileId: string, range?: string) {
   } catch (error) {
     const message =
       typeof error === "object" && error !== null && "message" in error ? (error as any).message : String(error)
-    console.error("[gdrive-lib] downloadFile error", { fileId, range, error: message })
+    console.error("❌ downloadFile error", { fileId, range, error: message })
     throw new Error(message)
   }
 }
