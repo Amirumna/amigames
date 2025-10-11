@@ -164,7 +164,6 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 - **React Hook Form** - Form management
 - **Zod** - Schema validation
 - **Jose** - JWT token handling
-- **Bcryptjs** - Password hashing
 
 ### Deployment
 - **Cloudflare Workers** - Serverless deployment
